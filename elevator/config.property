@@ -1,4 +1,4 @@
 storiesNumber = 6
 elevatorCapacity = 8
-passengersNumber = 1
-animationBoost = 4
+passengersNumber = 10
+animationBoost = 5

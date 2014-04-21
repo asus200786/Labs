@@ -5,75 +5,86 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
-import by.epam.epamlab.conctants.Constants;
+import org.apache.log4j.Logger;
+
+import by.epam.epamlab.constants.Constants;
 
 public class ConfigReader {
+	private static final String ANIMATION_BOOST = "animationBoost";
+	private static final String PASSENGERS_NUMBER = "passengersNumber";
+	private static final String ELEVATOR_CAPACITY = "elevatorCapacity";
+	private static final String STORIES_NUMBER = "storiesNumber";
+	private static final IllegalArgumentException ILLEGAL_ARGUMENT_EXCEPTION = new IllegalArgumentException(
+			"\nNot correct settings in Config.property.\n"
+					+ "Min values for: \n" + "storeysNumber: 2\n"
+					+ "elevatorCapacity: 1\n" + "passengersNumber: 1\n"
+					+ "animationBoost: 1-10");
 
-	private int storiesNumber;
+	private static final Logger logger = Logger.getLogger(ConfigReader.class
+			.getName());
+
+	private int storeysNumber;
 	private int elevatorCapacity;
 	private int passengersNumber;
 	private int animationBoost;
 
+	private Properties props = new Properties();
 
 	private static final String CONFIG_FILE = "config.property";
 
-	public int getStoriesNumber() {
-		return storiesNumber;
+	public ConfigReader(int storeysNumber, int elevatorCapacity,
+			int passengersNumber, int animationBoost) throws IOException {
+		super();
+		this.storeysNumber = storeysNumber;
+		this.elevatorCapacity = elevatorCapacity;
+		this.passengersNumber = passengersNumber;
+		this.animationBoost = animationBoost;
+		fileLoad();
+		readingSourceData();
 	}
 
-	public void setStoriesNumber(int storiesNumber) {
-		this.storiesNumber = storiesNumber;
+	public int getStoreysNumber() {
+		return storeysNumber;
 	}
 
 	public int getElevatorCapacity() {
 		return elevatorCapacity;
 	}
 
-	public void setElevatorCapacity(int elevatorCapacity) {
-		this.elevatorCapacity = elevatorCapacity;
-	}
-
 	public int getPassengersNumber() {
 		return passengersNumber;
-	}
-
-	public void setPassengersNumber(int passengersNumber) {
-		this.passengersNumber = passengersNumber;
 	}
 
 	public int getAnimationBoost() {
 		return animationBoost;
 	}
 
-	public void setAnimationBoost(int animationBoost) {
-		this.animationBoost = animationBoost;
-	}
-
-	public ConfigReader() throws IOException {
-
-		Properties props = new Properties();
+	private void fileLoad() throws IOException {
+		props = new Properties();
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(CONFIG_FILE);
 			props.load(fis);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			System.out.println(Constants.ERROR_CONFIG_FILE);
+			logger.info(Constants.ERROR_CONFIG_FILE);
 		} finally {
 			if (fis != null) {
 				fis.close();
 			}
 		}
+	}
 
-		storiesNumber = Integer.valueOf(props.getProperty("storiesNumber",
-				Constants.STORIES_NUMBER_DEFAULT));
-		System.out.println(storiesNumber);
-		elevatorCapacity = Integer.valueOf(props.getProperty(
-				"elevatorCapacity", Constants.ELEVATOR_CAPACITY_DEFAULT));
-		passengersNumber = Integer.valueOf(props.getProperty(
-				"passengersNumber", Constants.PASSENGERS_NUMBER_DEFAULT));
-		animationBoost = Integer.valueOf(props.getProperty("animationBoost",
-				Constants.ANIMATION_BOOST_DEFAULT));
+	private void readingSourceData() {
+		storeysNumber = Integer.valueOf(props.getProperty(STORIES_NUMBER));
+		elevatorCapacity = Integer
+				.valueOf(props.getProperty(ELEVATOR_CAPACITY));
+		passengersNumber = Integer
+				.valueOf(props.getProperty(PASSENGERS_NUMBER));
+		animationBoost = Integer.valueOf(props.getProperty(ANIMATION_BOOST));
+		if (storeysNumber < 3 || elevatorCapacity < 1 || passengersNumber < 1
+				|| animationBoost < 0 || animationBoost > 10)
+			throw ILLEGAL_ARGUMENT_EXCEPTION;
 	}
 
 }
